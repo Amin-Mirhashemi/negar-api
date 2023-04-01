@@ -14,6 +14,8 @@ jobs:
       - name: update-liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DATABASE_CONNECTION: ${{ secrets.DATABASE_CONNECTION }}
         run: |
           npm i -g @liara/cli@3
-          liara deploy --app="negar" --api-token="$LIARA_TOKEN" --detach --port=3000
+          liara deploy --app="negar" --api-token="$LIARA_TOKEN" --detach --port=3000 --env="DATABASE_CONNECTION=$DATABASE_CONNECTION,JWT_SECRET=$JWT_SECRET"

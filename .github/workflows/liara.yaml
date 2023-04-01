@@ -18,4 +18,4 @@ jobs:
           DATABASE_CONNECTION: ${{ secrets.DATABASE_CONNECTION }}
         run: |
           npm i -g @liara/cli@3
-          liara deploy --app="negar" --api-token="$LIARA_TOKEN" --detach --port=3000 --env="DATABASE_CONNECTION=$DATABASE_CONNECTION,JWT_SECRET=$JWT_SECRET"
+          liara deploy --app="negar" --api-token="$LIARA_TOKEN" --detach --port=3000

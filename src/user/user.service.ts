@@ -8,7 +8,7 @@ import mongoose, { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { EditDto } from './dtos/edit.dto';
+import { EditUserDto } from './dtos/edit.dto';
 
 @Injectable()
 export class UserService {
@@ -41,7 +41,7 @@ export class UserService {
     return this.userModel.findOne({ username }).exec();
   }
 
-  async editUser(id: string, body: EditDto) {
+  async editUser(id: string, body: EditUserDto) {
     const ObjectId = new mongoose.Types.ObjectId(id);
     const user = await this.userModel.findById(ObjectId).exec();
 

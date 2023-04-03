@@ -4,6 +4,7 @@ import { User, UserSchema } from './schemas/user.schema';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { JwtModule } from '@nestjs/jwt';
+import { Follow, FollowSchema } from './schemas/follow.schema';
 
 @Module({
   imports: [
@@ -11,6 +12,10 @@ import { JwtModule } from '@nestjs/jwt';
       {
         name: User.name,
         schema: UserSchema,
+      },
+      {
+        name: Follow.name,
+        schema: FollowSchema,
       },
     ]),
     JwtModule.register({

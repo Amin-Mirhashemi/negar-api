@@ -50,6 +50,26 @@ export class UserService {
     return this.userModel.findById(ObjectId).exec();
   }
 
+  async findByIdLean(id: string) {
+    const ObjectId = this.toId(id);
+    return this.userModel.findById(ObjectId).lean().exec();
+  }
+
+  async findByIds(ids: mongoose.Types.ObjectId[]) {
+    const users = await this.userModel
+      .find({
+        _id: { $in: ids },
+      })
+      .lean()
+      .exec();
+    return users.map((u) => this.removePassword(u));
+  }
+
+  removePassword(u: any) {
+    const { password, ...rest } = u;
+    return rest;
+  }
+
   toId(id: string) {
     return new mongoose.Types.ObjectId(id);
   }
@@ -118,5 +138,41 @@ export class UserService {
       follower: this.toId(id),
       following: this.toId(body.userId),
     };
+  }
+
+  async follows(id: string, role: 'follower' | 'following') {
+    const follows = await this.followModel
+      .find({ [role]: this.toId(id) })
+      .lean()
+      .exec();
+    return follows;
+  }
+
+  async getUser(id: string) {
+    const user = await this.findByIdLean(id);
+
+    if (!user) {
+      throw new UnprocessableEntityException();
+    }
+
+    return {
+      ...this.removePassword(user),
+      follower_count: (await this.follows(id, 'following')).length,
+      following_count: (await this.follows(id, 'follower')).length,
+    };
+  }
+
+  async getFollowers(id: string) {
+    const followers = (await this.follows(id, 'following')).map(
+      (f) => f.follower,
+    );
+    return await this.findByIds(followers);
+  }
+
+  async getFollowings(id: string) {
+    const followings = (await this.follows(id, 'follower')).map(
+      (f) => f.following,
+    );
+    return await this.findByIds(followings);
   }
 }

@@ -44,8 +44,10 @@ export class UserController {
 
   @Get('id/:id')
   @ApiParam({ name: 'id', required: true })
-  async getUser(@Param() params: any) {
-    return this.userService.getUser(params.id);
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  async getUser(@Request() req: any, @Param() params: any) {
+    return this.userService.getUser(params.id, req.user.sub);
   }
 
   @ApiHeader({ name: 'Authorization', required: true })

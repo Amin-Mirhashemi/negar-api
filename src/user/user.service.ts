@@ -148,17 +148,24 @@ export class UserService {
     return follows;
   }
 
-  async getUser(id: string) {
+  async getUser(id: string, currentId?: string) {
     const user = await this.findByIdLean(id);
 
     if (!user) {
       throw new UnprocessableEntityException();
     }
 
+    const followers = await this.follows(id, 'following');
+    const followings = await this.follows(id, 'follower');
+    const isFollowing = currentId
+      ? !!followers.find((f) => String(f.follower) == currentId)
+      : false;
+
     return {
       ...this.removePassword(user),
-      follower_count: (await this.follows(id, 'following')).length,
-      following_count: (await this.follows(id, 'follower')).length,
+      follower_count: followers.length,
+      following_count: followings.length,
+      is_followed_by_current_user: isFollowing,
     };
   }
 

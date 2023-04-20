@@ -1,0 +1,80 @@
+import { PostService } from './post.service';
+import { CreatePostDto } from './dtos/createPost.dto';
+import { EditPostDto } from './dtos/editPost.dto';
+import { CreateCommentDto } from './dtos/createComment.dto';
+import { EditCommentDto } from './dtos/editComment.dto';
+import {
+  Body,
+  Controller,
+  Post,
+  Patch,
+  UseGuards,
+  Request,
+  Get,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { AuthGuard } from '../auth/auth.guard';
+import { ApiHeader, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Post')
+@Controller('post')
+export class PostController {
+  constructor(private postService: PostService) {}
+
+  @ApiOperation({ summary: 'create new post' })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Post()
+  async createPost(@Request() req: any, @Body() body: CreatePostDto) {
+    return this.postService.createPost(body, req.user.sub);
+  }
+
+  @ApiOperation({ summary: 'edit post' })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Patch()
+  async editPost(@Request() req: any, @Body() body: EditPostDto) {
+    return this.postService.editPost(body, req.user.sub);
+  }
+
+  @ApiOperation({ summary: 'delete post' })
+  @ApiParam({ name: 'id', required: true })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  async deletePost(@Request() req: any, @Param() params: any) {
+    return this.postService.deletePost(params.id, req.user.sub);
+  }
+}
+
+@ApiTags('Comment')
+@Controller('comment')
+export class CommentController {
+  constructor(private postService: PostService) {}
+
+  @ApiOperation({ summary: 'create new comment' })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Post()
+  async createComment(@Request() req: any, @Body() body: CreateCommentDto) {
+    return this.postService.createComment(body, req.user.sub);
+  }
+
+  @ApiOperation({ summary: 'edit comment' })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Patch()
+  async editComment(@Request() req: any, @Body() body: EditCommentDto) {
+    return this.postService.editComment(body, req.user.sub);
+  }
+
+  @ApiOperation({ summary: 'delete comment' })
+  @ApiParam({ name: 'id', required: true })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  async deleteComment(@Request() req: any, @Param() params: any) {
+    return this.postService.deleteComment(params.id, req.user.sub);
+  }
+}

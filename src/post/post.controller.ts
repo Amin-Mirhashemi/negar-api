@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { ApiHeader, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { LikeDto } from './dtos/like.dto';
 
 @ApiTags('Post')
 @Controller('post')
@@ -45,6 +46,22 @@ export class PostController {
   @Delete(':id')
   async deletePost(@Request() req: any, @Param() params: any) {
     return this.postService.deletePost(params.id, req.user.sub);
+  }
+
+  @Get(':id')
+  @ApiParam({ name: 'id', required: true })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  async getPost(@Request() req: any, @Param() params: any) {
+    return this.postService.getPost(params.id, req.user.sub);
+  }
+
+  @Get(':id/comments')
+  @ApiParam({ name: 'id', required: true })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  async getComments(@Request() req: any, @Param() params: any) {
+    return this.postService.getComments(params.id, req.user.sub);
   }
 }
 
@@ -76,5 +93,26 @@ export class CommentController {
   @Delete(':id')
   async deleteComment(@Request() req: any, @Param() params: any) {
     return this.postService.deleteComment(params.id, req.user.sub);
+  }
+}
+
+@ApiTags('Like')
+@Controller()
+export class LikeController {
+  constructor(private postService: PostService) {}
+
+  @ApiOperation({ summary: 'like a comment or post' })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Post('like')
+  async like(@Request() req: any, @Body() body: LikeDto) {
+    return this.postService.like(body, req.user.sub);
+  }
+
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Post('unlike')
+  async unlike(@Request() req: any, @Body() body: LikeDto) {
+    return this.postService.unlike(body, req.user.sub);
   }
 }

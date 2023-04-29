@@ -9,7 +9,7 @@ export class Post {
   @Prop({ required: true })
   creator: mongoose.Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ required: true, index: 'text' })
   text: string;
 
   @Prop({ default: '' })

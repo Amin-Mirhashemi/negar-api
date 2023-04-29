@@ -37,5 +37,6 @@ import { UserModule } from 'src/user/user.module';
   ],
   providers: [PostService],
   controllers: [PostController, CommentController, LikeController],
+  exports: [PostService],
 })
 export class PostModule {}

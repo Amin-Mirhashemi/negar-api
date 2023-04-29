@@ -168,18 +168,17 @@ export class PostService {
     return !!likeInstance;
   }
 
-  async likes(entity: mongoose.Types.ObjectId) {
-    const likes = await this.LikeModel.find({ entity: entity }).lean().exec();
-    return likes;
-  }
-
   async mapper(entity: any, user: string) {
-    const likes = await this.likes(entity._id);
+    const [likesCount, isLiked, creator] = await Promise.all([
+      this.LikeModel.countDocuments({ entity: entity._id }),
+      this.hasBeenLiked(user, String(entity._id)),
+      this.userService.getUser(entity.creator, user),
+    ]);
     return {
       ...entity,
-      like_count: likes.length,
-      creator: await this.userService.getUser(entity.creator, user),
-      is_liked_by_current_user: !!likes.find((l) => String(l.user) === user),
+      creator,
+      like_count: likesCount,
+      is_liked_by_current_user: isLiked,
     };
   }
 
@@ -210,24 +209,31 @@ export class PostService {
     userId: string,
     repost?: boolean,
   ): Promise<any> {
-    let post = await this.PostModel.findById(postId).lean().exec();
+    const post = await this.PostModel.findById(postId).lean().exec();
 
     if (!post) {
       throw new BadRequestException('post does not exist');
     }
 
-    post = await this.mapper(post, userId);
-    if (repost) return post;
+    if (repost) {
+      return await this.mapper(post, userId);
+    }
 
-    const comments = await this.getComments(postId, userId);
+    const [mapped, comments, repostCount, repostOn] = await Promise.all([
+      this.mapper(post, userId),
+      this.getComments(postId, userId),
+      this.PostModel.countDocuments({
+        repostOn: this.toId(postId),
+      }),
+      post.repostOn && this.getPost(String(post.repostOn), userId, true),
+    ]);
 
     return {
-      ...post,
+      ...mapped,
       comments,
       comment_count: comments.length,
-      repostOn:
-        post.repostOn &&
-        (await this.getPost(String(post.repostOn), userId, true)),
+      repost_count: repostCount,
+      repostOn,
     };
   }
 

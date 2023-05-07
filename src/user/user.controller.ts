@@ -50,6 +50,14 @@ export class UserController {
     return this.userService.getUser(params.id, req.user.sub);
   }
 
+  @Get('username/:username')
+  @ApiParam({ name: 'username', required: true })
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  async getUserByUsername(@Request() req: any, @Param() params: any) {
+    return this.userService.getUserByUsername(params.username, req.user.sub);
+  }
+
   @ApiHeader({ name: 'Authorization', required: true })
   @UseGuards(AuthGuard)
   @Post('follow')

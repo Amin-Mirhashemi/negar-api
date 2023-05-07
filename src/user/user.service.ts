@@ -42,7 +42,7 @@ export class UserService {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    return this.userModel.findOne({ username }).exec();
+    return this.userModel.findOne({ username }).lean().exec();
   }
 
   async findById(id: string) {
@@ -155,8 +155,24 @@ export class UserService {
       throw new UnprocessableEntityException();
     }
 
-    const followers = await this.follows(id, 'following');
-    const followings = await this.follows(id, 'follower');
+    return await this.userMapper(id, user, currentId);
+  }
+
+  async getUserByUsername(username: string, currentId?: string) {
+    const user = await this.findByUsername(username);
+
+    if (!user) {
+      throw new UnprocessableEntityException('username not found');
+    }
+
+    return await this.userMapper(String(user._id), user, currentId);
+  }
+
+  async userMapper(id: string, user: User, currentId?: string) {
+    const [followers, followings] = await Promise.all([
+      this.follows(id, 'following'),
+      this.follows(id, 'follower'),
+    ]);
     const isFollowing = currentId
       ? !!followers.find((f) => String(f.follower) == currentId)
       : false;

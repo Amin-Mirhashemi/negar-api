@@ -57,4 +57,19 @@ export class FeedController {
   ) {
     return this.feedService.getReposts(req.user.sub, offset, limit, id);
   }
+
+  @ApiHeader({ name: 'Authorization', required: true })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiParam({ name: 'userId', required: true })
+  @UseGuards(AuthGuard)
+  @Get('posts/:userId')
+  async userPosts(
+    @Request() req: any,
+    @Query('offset') offset = 0,
+    @Query('limit') limit = 10,
+    @Param('userId') userId: string,
+  ) {
+    return this.feedService.getUserPosts(req.user.sub, offset, limit, userId);
+  }
 }

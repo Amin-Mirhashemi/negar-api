@@ -59,6 +59,25 @@ export class FeedService {
     return posts;
   }
 
+  async getUserPosts(
+    currentUser: string,
+    offset: number,
+    limit: number,
+    userId: string,
+  ) {
+    const posts = await this.getQuery(
+      {
+        ...this.timeFilter(),
+        creator: this.toId(userId),
+      },
+      offset,
+      limit,
+      currentUser,
+    );
+
+    return posts;
+  }
+
   async getReposts(
     userId: string,
     offset: number,

@@ -25,6 +25,8 @@ export class AuthGuard implements CanActivate {
     } catch {
       throw new UnauthorizedException('please login first');
     }
+
+    console.log(request.method, request.url, request.body);
     return true;
   }
 

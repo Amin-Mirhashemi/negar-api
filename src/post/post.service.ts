@@ -2,7 +2,6 @@ import {
   Injectable,
   BadRequestException,
   NotAcceptableException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -36,7 +35,10 @@ export class PostService {
     const post = new this.PostModel(postObject);
     await post.save();
 
-    return 'post created successfully';
+    return {
+      result: true,
+      id: String(post._id),
+    };
   }
 
   async editPost(body: EditPostDto, id: string) {
@@ -238,6 +240,10 @@ export class PostService {
   }
 
   toId(id: string) {
-    return new mongoose.Types.ObjectId(id);
+    try {
+      return new mongoose.Types.ObjectId(id);
+    } catch {
+      throw new BadRequestException('id is not valid');
+    }
   }
 }

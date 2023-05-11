@@ -5,6 +5,7 @@ import { PostService } from 'src/post/post.service';
 import { Comment, CommentDocument } from 'src/post/schemas/comment.schema';
 import { Post, PostDocument } from 'src/post/schemas/post.schema';
 import { Follow, FollowDocument } from 'src/user/schemas/follow.schema';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class FeedService {
@@ -145,6 +146,10 @@ export class FeedService {
   }
 
   toId(id: string) {
-    return new mongoose.Types.ObjectId(id);
+    try {
+      return new mongoose.Types.ObjectId(id);
+    } catch {
+      throw new BadRequestException('id is not valid');
+    }
   }
 }

@@ -71,7 +71,11 @@ export class UserService {
   }
 
   toId(id: string) {
-    return new mongoose.Types.ObjectId(id);
+    try {
+      return new mongoose.Types.ObjectId(id);
+    } catch {
+      throw new BadRequestException('id is not valid');
+    }
   }
 
   async editUser(id: string, body: EditUserDto) {

@@ -270,16 +270,18 @@ export class PostService {
     const voteObject = {
       user: this.toId(userId),
       post: this.toId(payload.postId),
-      tag: this.toId(payload.tagId),
     };
 
     const existingVote = await this.VoteModel.findOne(voteObject).exec();
 
     if (existingVote) {
-      throw new BadRequestException('you cant vote for the same tag twice');
+      throw new BadRequestException('you cant vote for a post twice');
     }
 
-    await new this.VoteModel(voteObject).save();
+    await new this.VoteModel({
+      ...voteObject,
+      tag: this.toId(payload.tagId),
+    }).save();
 
     return 'vote applied successfully';
   }

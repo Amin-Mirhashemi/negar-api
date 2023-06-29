@@ -16,7 +16,10 @@ jobs:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           DATABASE_CONNECTION: ${{ secrets.DATABASE_CONNECTION }}
+          BUCKET_SECRET_KEY: ${{ secrets.BUCKET_SECRET_KEY }}
+          BUCKET_ENDPOINT: ${{ secrets.BUCKET_ENDPOINT }}
+          BUCKET_ACCESS_KEY: ${{ secrets.BUCKET_ACCESS_KEY }}
         run: |
           npm i -g @liara/cli@3
-          liara env set JWT_SECRET="$JWT_SECRET" DATABASE_CONNECTION="$DATABASE_CONNECTION" --app="negar" --api-token="$LIARA_TOKEN" --force
+          liara env set JWT_SECRET="$JWT_SECRET" BUCKET_ACCESS_KEY="$BUCKET_ACCESS_KEY" DATABASE_CONNECTION="$DATABASE_CONNECTION" BUCKET_SECRET_KEY="$BUCKET_SECRET_KEY" BUCKET_ENDPOINT="$BUCKET_ENDPOINT" --app="negar" --api-token="$LIARA_TOKEN" --force
           liara deploy --app="negar" --api-token="$LIARA_TOKEN" --detach --port=3000

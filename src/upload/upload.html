@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Upload File</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="file" id="fileInput" />
+      <button type="submit">Upload</button>
+    </form>
+
+    <script>
+      const form = document.getElementById('uploadForm');
+      const fileInput = document.getElementById('fileInput');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        try {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', 'https://negar.iran.liara.run/upload');
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              if (xhr.status === 200 || xhr.status === 201) {
+                console.log('File uploaded successfully:', xhr.responseText);
+              } else {
+                console.error('Error uploading file:', xhr.statusText);
+              }
+            }
+          };
+          xhr.send(formData);
+        } catch (error) {
+          console.error('Error uploading file:', error.message);
+        }
+      });
+    </script>
+  </body>
+</html>

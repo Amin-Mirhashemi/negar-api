@@ -14,6 +14,9 @@ import { EditCommentDto } from './dtos/editComment.dto';
 import { Like, LikeDocument } from './schemas/like.schema';
 import { LikeDto } from './dtos/like.dto';
 import { UserService } from 'src/user/user.service';
+import { Tag, TagDocument } from './schemas/tag.schema';
+import { VoteDto } from './dtos/vote.dto';
+import { Vote, VoteDocument } from './schemas/vote.schema';
 
 @Injectable()
 export class PostService {
@@ -21,6 +24,8 @@ export class PostService {
     @InjectModel(Post.name) private PostModel: Model<PostDocument>,
     @InjectModel(Comment.name) private CommentModel: Model<CommentDocument>,
     @InjectModel(Like.name) private LikeModel: Model<LikeDocument>,
+    @InjectModel(Tag.name) private TagModel: Model<TagDocument>,
+    @InjectModel(Vote.name) private VoteModel: Model<VoteDocument>,
     private userService: UserService,
   ) {}
 
@@ -171,16 +176,19 @@ export class PostService {
   }
 
   async mapper(entity: any, user: string) {
-    const [likesCount, isLiked, creator] = await Promise.all([
+    const [likesCount, isLiked, creator, tags] = await Promise.all([
       this.LikeModel.countDocuments({ entity: entity._id }),
       this.hasBeenLiked(user, String(entity._id)),
       this.userService.getUser(entity.creator, user),
+      !!entity.postId ? undefined : this.getVotes(user, entity._id),
     ]);
     return {
       ...entity,
       creator,
       like_count: likesCount,
       is_liked_by_current_user: isLiked,
+      user_votes: tags?.userVotes,
+      post_tags: tags?.postTags,
     };
   }
 
@@ -236,6 +244,81 @@ export class PostService {
       comment_count: comments.length,
       repost_count: repostCount,
       repostOn,
+    };
+  }
+
+  async createTag(label: string, title: string) {
+    await new this.TagModel({ label, title }).save();
+    return 200;
+  }
+
+  private cachedTags: Tag[];
+
+  async getTags() {
+    if (this.cachedTags) {
+      return this.cachedTags;
+    }
+
+    const tags = await this.TagModel.find().lean().exec();
+
+    this.cachedTags = tags;
+
+    return tags;
+  }
+
+  async vote(userId: string, payload: VoteDto) {
+    const voteObject = {
+      user: this.toId(userId),
+      post: this.toId(payload.postId),
+      tag: this.toId(payload.tagId),
+    };
+
+    const existingVote = await this.VoteModel.findOne(voteObject).exec();
+
+    if (existingVote) {
+      throw new BadRequestException('you cant vote for the same tag twice');
+    }
+
+    await new this.VoteModel(voteObject).save();
+
+    return 'vote applied successfully';
+  }
+
+  async unvote(userId: string, payload: VoteDto) {
+    await this.VoteModel.findOneAndDelete({
+      user: this.toId(userId),
+      post: this.toId(payload.postId),
+      tag: this.toId(payload.tagId),
+    });
+    return 'vote deleted';
+  }
+
+  async getVotes(userId: string, postId: mongoose.Types.ObjectId) {
+    const [allVotes, tags] = await Promise.all([
+      this.VoteModel.find({ post: postId }).lean().exec(),
+      this.getTags(),
+    ]);
+
+    const counters: Record<string, number> = {};
+    const userVotes: mongoose.Types.ObjectId[] = [];
+    const postTags: mongoose.Types.ObjectId[] = [];
+
+    allVotes.forEach((vote) => {
+      const tag = vote.tag.toString();
+
+      counters[tag] = (counters[tag] || 0) + 1;
+      if (counters[tag] === 4) postTags.push(vote.tag);
+
+      if (vote.user.toString() === userId) userVotes.push(vote.tag);
+    });
+
+    const tagIdToObject = (tagId: mongoose.Types.ObjectId) => {
+      return tags.find((tag) => String(tag._id) === String(tagId));
+    };
+
+    return {
+      userVotes: userVotes.map(tagIdToObject),
+      postTags: postTags.map(tagIdToObject),
     };
   }
 

@@ -17,6 +17,8 @@ import {
 import { AuthGuard } from '../auth/auth.guard';
 import { ApiHeader, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { LikeDto } from './dtos/like.dto';
+import { CreateTagDto } from './dtos/createTag.dto';
+import { VoteDto } from './dtos/vote.dto';
 
 @ApiTags('Post')
 @Controller('post')
@@ -114,5 +116,35 @@ export class LikeController {
   @Post('unlike')
   async unlike(@Request() req: any, @Body() body: LikeDto) {
     return this.postService.unlike(body, req.user.sub);
+  }
+}
+
+@ApiTags('Tags and Vote')
+@Controller()
+export class VoteController {
+  constructor(private postService: PostService) {}
+
+  // @Post('tag')
+  // async createTag(@Body() body: CreateTagDto) {
+  //   return this.postService.createTag(body.label, body.title);
+  // }
+
+  @Get('tags')
+  async getTags() {
+    return this.postService.getTags();
+  }
+
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Post('vote')
+  async vote(@Request() req: any, @Body() body: VoteDto) {
+    return this.postService.vote(req.user.sub, body);
+  }
+
+  @ApiHeader({ name: 'Authorization', required: true })
+  @UseGuards(AuthGuard)
+  @Post('unvote')
+  async unvote(@Request() req: any, @Body() body: VoteDto) {
+    return this.postService.unvote(req.user.sub, body);
   }
 }

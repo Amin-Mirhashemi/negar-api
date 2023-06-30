@@ -162,14 +162,13 @@ export class UserService {
     return await this.userMapper(id, user, currentId);
   }
 
-  async getUserByUsername(username: string, currentId?: string) {
-    const user = await this.findByUsername(username);
+  async getUserByUsername(username: string) {
+    const users = await this.userModel
+      .find({ $text: { $search: username } })
+      .lean()
+      .exec();
 
-    if (!user) {
-      throw new UnprocessableEntityException('username not found');
-    }
-
-    return await this.userMapper(String(user._id), user, currentId);
+    return users.map(this.removePassword);
   }
 
   async userMapper(id: string, user: User, currentId?: string) {

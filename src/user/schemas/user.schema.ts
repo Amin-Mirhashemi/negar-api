@@ -9,7 +9,7 @@ export class User {
   @Prop({ default: () => new mongoose.Types.ObjectId(), auto: true })
   _id?: mongoose.Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ required: true, index: 'text' })
   username: string;
 
   @Prop({ required: true })

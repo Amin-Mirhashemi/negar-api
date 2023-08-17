@@ -247,6 +247,10 @@ export class PostService {
     };
   }
 
+  async getPostLight(postId: string) {
+    return await this.PostModel.findById(postId).lean().exec();
+  }
+
   async createTag(label: string, title: string) {
     await new this.TagModel({ label, title }).save();
     return 200;

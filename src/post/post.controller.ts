@@ -58,6 +58,12 @@ export class PostController {
     return this.postService.getPost(params.id, req.user.sub);
   }
 
+  @Get(':id/light')
+  @ApiParam({ name: 'id', required: true })
+  async getPostLight(@Param() params: any) {
+    return this.postService.getPostLight(params.id);
+  }
+
   @Get(':id/comments')
   @ApiParam({ name: 'id', required: true })
   @ApiHeader({ name: 'Authorization', required: true })

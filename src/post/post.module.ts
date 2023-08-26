@@ -51,7 +51,7 @@ import { Vote, VoteSchema } from './schemas/vote.schema';
     PostController,
     CommentController,
     LikeController,
-    VoteController,
+    // VoteController,
   ],
   exports: [PostService],
 })

@@ -15,7 +15,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     UserModule,
     PostModule,
-    FeedModule,
+    // FeedModule,
     UploadModule,
   ],
 })

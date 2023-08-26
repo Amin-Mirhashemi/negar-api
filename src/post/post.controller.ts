@@ -135,22 +135,22 @@ export class VoteController {
   //   return this.postService.createTag(body.label, body.title);
   // }
 
-  @Get('tags')
-  async getTags() {
-    return this.postService.getTags();
-  }
+  // @Get('tags')
+  // async getTags() {
+  //   return this.postService.getTags();
+  // }
 
-  @ApiHeader({ name: 'Authorization', required: true })
-  @UseGuards(AuthGuard)
-  @Post('vote')
-  async vote(@Request() req: any, @Body() body: VoteDto) {
-    return this.postService.vote(req.user.sub, body);
-  }
+  // @ApiHeader({ name: 'Authorization', required: true })
+  // @UseGuards(AuthGuard)
+  // @Post('vote')
+  // async vote(@Request() req: any, @Body() body: VoteDto) {
+  //   return this.postService.vote(req.user.sub, body);
+  // }
 
-  @ApiHeader({ name: 'Authorization', required: true })
-  @UseGuards(AuthGuard)
-  @Post('unvote')
-  async unvote(@Request() req: any, @Body() body: VoteDto) {
-    return this.postService.unvote(req.user.sub, body);
-  }
+  // @ApiHeader({ name: 'Authorization', required: true })
+  // @UseGuards(AuthGuard)
+  // @Post('unvote')
+  // async unvote(@Request() req: any, @Body() body: VoteDto) {
+  //   return this.postService.unvote(req.user.sub, body);
+  // }
 }

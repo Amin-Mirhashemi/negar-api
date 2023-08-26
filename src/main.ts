@@ -16,7 +16,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Negar')
+    .setTitle('Cyber Nama ')
     .setDescription('Backend Api Documentation')
     .setVersion('1.0')
     .build();
